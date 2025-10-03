@@ -78,6 +78,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 ### Production
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8001
+nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > uvicorn_logs.log 2>&1 &
 ```
 
 ## API Documentation
