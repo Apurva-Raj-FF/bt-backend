@@ -28,10 +28,12 @@ class User(Base):
     reset_token_expiry = Column(TIMESTAMP, nullable=True)
 
 class InputPortfolio(Base):
-    __tablename__ = "input_portfolio"
+    __tablename__ = "portfolio_investment_rules"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     # Columns as provided by user
+    y_1997 = Column("1997", Text, nullable=True)
+    y_1998 = Column("1998", Text, nullable=True)
     y_1999 = Column("1999", Text, nullable=True)
     y_2000 = Column("2000", Text, nullable=True)
     y_2001 = Column("2001", Text, nullable=True)
@@ -69,7 +71,7 @@ class InputPortfolio(Base):
     isPublic = Column(Integer, nullable=False, default=0)  # tinyint(1) in MySQL
 
 class PortfolioStats(Base):
-    __tablename__ = "portfolio_stats"
+    __tablename__ = "investment_rules_statistics"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     # Columns as provided by user - using exact database column names
@@ -102,7 +104,7 @@ class PortfolioStats(Base):
     mean = Column("mean", Double, nullable=True)
     median = Column("median", Double, nullable=True)
     mod_list_pct = Column("Mod_List%", Text, nullable=True)
-    ndatapoints = Column("ndatapoint", Integer, nullable=True)  # Database has ndatapoint, not ndatapoints
+    ndatapoints = Column("ndatapoints", Integer, nullable=True)  # Database has ndatapoint, not ndatapoints
     nyears = Column("nyears", Integer, nullable=True)
     prob_0 = Column("prob_0", Double, nullable=True)
     prob_0_07 = Column("prob_0.07", Double, nullable=True)

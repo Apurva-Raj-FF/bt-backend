@@ -11,7 +11,7 @@ from app.database.models import InputPortfolio, PortfolioStats, CalYear
 from datetime import datetime
 
 def process_strategy(session: Session, session_id: str, user_token: str, data: dict):
-    """Process the strategy and insert a new row into input_portfolio"""
+    """Process the strategy and insert a new row into portfolio_investment_rules"""
     new_session_id = str(session_id)
     
     # Create base object
@@ -51,7 +51,7 @@ def backtest_and_create_stats(session: Session, session_id: str, strat_name: str
             nyears=horizon,
             cagr_mean=0.1 * horizon,  # Placeholder
             sharpe_ratio=0.5 * horizon,  # Placeholder
-            ndatapoint=100 + 10 * horizon,  # Placeholder
+            ndatapoints=100 + 10 * horizon,  # Placeholder
         )
         session.add(portfolio_stats)
     session.commit()

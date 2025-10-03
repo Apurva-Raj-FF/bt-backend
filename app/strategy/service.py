@@ -222,7 +222,7 @@ def run_script(session_id: str, user_token: str, payload: dict) -> dict:
                     "cagr_median": stat.median,
                     "cagr_std": stat.std,
                     "sharpe_ratio": stat.sharpe,
-                    "ndatapoint": stat.ndatapoints,
+                    "ndatapoints": stat.ndatapoints,
 
                     "index_mean": stat.index_mean,
                     "index_median": stat.index_median,
@@ -524,7 +524,7 @@ def get_strategy_service(strategy_id: str, db: Session) -> dict:
                 "lowest_alpha": stat.lowest_alpha,
                 
                 # Additional fields that might be needed
-                "ndatapoint": stat.ndatapoints,
+                "ndatapoints": stat.ndatapoints,
                 "mod_list_pct": stat.mod_list_pct,
                 "id": stat.id,
                 "strat_name": stat.strat_name,
