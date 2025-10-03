@@ -25,13 +25,13 @@ if not os.getenv("ALGORITHM"):
 
 if __name__ == "__main__":
     print("Starting FFPU Backend Server...")
-    print("API Documentation will be available at: http://localhost:8001/docs")
+    print("API Documentation will be available at: http://localhost:8005/docs")
     print("Press Ctrl+C to stop the server")
     
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8001,
+        port=8005,
         reload=True,
         log_level="info"
     )

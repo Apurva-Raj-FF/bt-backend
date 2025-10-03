@@ -72,20 +72,20 @@ backend-repo/
 
 ### Development
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
 ```
 
 ### Production
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8001
+uvicorn app.main:app --host 0.0.0.0 --port 8005
 nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > uvicorn_logs.log 2>&1 &
 ```
 
 ## API Documentation
 
 Once running, visit:
-- **Interactive API Docs**: http://localhost:8001/docs
-- **ReDoc**: http://localhost:8001/redoc
+- **Interactive API Docs**: http://localhost:8005/docs
+- **ReDoc**: http://localhost:8005/redoc
 
 ## API Endpoints
 
