@@ -362,7 +362,7 @@ def get_all_strategies_user_service(user_id: int, page: int, page_size: int, db:
         }
     }
 
-def get_all_strategies_service(page: int, page_size: int, db: Session) -> dict:
+def get_all_strategies_service_old(page: int, page_size: int, db: Session) -> dict:
     """
     Get all public strategies with pagination.
     Only returns strategies that are public (isPublic=1) and have a strategy name alias.
@@ -417,60 +417,6 @@ def get_all_strategies_service(page: int, page_size: int, db: Session) -> dict:
         }
     }
     
-    
-def get_all_strategies_service_old(page: int, page_size: int, db: Session) -> dict:
-    """
-    Get all public strategies with pagination.
-    Only returns strategies that are public (isPublic=1) and have a strategy name alias.
-
-    Args:
-        page (int): Page number
-        page_size (int): Number of items per page
-        db (Session): Database session
-
-    Returns:
-        dict: Paginated list of strategies with metadata
-    """
-    # Calculate offset
-    offset = (page - 1) * page_size
-
-    # Add explicit ordering for consistent pagination results; using strat_uuid as an example
-    query_base = db.query(
-        InputPortfolio.strat_name,
-        InputPortfolio.strat_name_alias,
-        InputPortfolio.strat_uuid,
-    ).filter(
-        InputPortfolio.isPublic == 1,
-        InputPortfolio.strat_name_alias.isnot(None),
-        InputPortfolio.strat_name_alias != ""
-    ).order_by(InputPortfolio.strat_uuid)
-
-    # Get total count efficiently (ensure there is an index on isPublic and strat_name_alias)
-    total_count = query_base.with_entities(func.count(InputPortfolio.strat_uuid)).scalar()
-
-    # Fetch paginated results
-    strategies = query_base.offset(offset).limit(page_size).all()
-
-    strategies_list = [
-        {
-            "strategy": strategy.strat_name,
-            "name": strategy.strat_name_alias,
-            "strategy_id": strategy.strat_uuid,
-            "formatted_query": format_query_from_strat_name(strategy.strat_name),
-        }
-        for strategy in strategies
-    ]
-
-    return {
-        "strategies": strategies_list,
-        "pagination": {
-            "total": total_count,
-            "page": page,
-            "page_size": page_size,
-            "total_pages": (total_count + page_size - 1) // page_size,
-        }
-    }
-
 def get_all_strategies_service(page: int, page_size: int, db: Session) -> dict:
     """
     Get all public strategies with pagination.
