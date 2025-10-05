@@ -21,6 +21,8 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app.database.database import SessionLocal
 from sqlalchemy import or_
+from sqlalchemy import func
+
 
 def _coerce_to_dict(possibly_json: str):
     """Attempt to coerce various string formats into a Python dict.
