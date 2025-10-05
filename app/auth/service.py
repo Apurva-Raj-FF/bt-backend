@@ -191,7 +191,7 @@ def send_verification_email(email: str) -> None:
         email (str): Recipient's email address
     """
     verification_token = create_access_token({"sub": email}, expires_delta=timedelta(hours=24))
-    verification_link = f"{os.getenv('BACKEND_URL')}/api/auth/verify-email/{verification_token}"
+    verification_link = f"{os.getenv('BACKEND_URL')}/auth/verify-email/{verification_token}"
     dashboard_link = f"{os.getenv('FRONTEND_URL')}/screens"
     docs_link = f"{os.getenv('FRONTEND_URL')}/guides/backtesting"
     
