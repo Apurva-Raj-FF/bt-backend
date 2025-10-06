@@ -78,7 +78,7 @@ class PortfolioStats(Base):
     alpha_0 = Column("alpha_0", Double, nullable=True)
     alpha_0_07 = Column("alpha_0.07", Double, nullable=True)
     alpha_0_15 = Column("alpha_0.15", Double, nullable=True)
-    alpha_0_15_pos = Column("alpha_0_15_pos", Double, nullable=True)  # This one has underscore
+    alpha_0_15_pos = Column("alpha_0.15_pos", Double, nullable=True)  # This one has underscore
     alpha_0_25 = Column("alpha_0.25", Double, nullable=True)
     alpha_0_5 = Column("alpha_0.5", Double, nullable=True)
     alpha_1 = Column("alpha_1", Integer, nullable=True)  # This is int, not double
