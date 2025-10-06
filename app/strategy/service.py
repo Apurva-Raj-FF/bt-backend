@@ -22,6 +22,7 @@ from fastapi import HTTPException
 from app.database.database import SessionLocal
 from sqlalchemy import or_
 from sqlalchemy import func
+from typing import Dict, Any
 
 
 def _coerce_to_dict(possibly_json: str):
@@ -312,7 +313,56 @@ def save_strategy_service(request: SaveStrategyRequest, db: Session) -> dict:
     
     return {"message": "Strategy updated successfully"}
 
-def get_all_strategies_user_service(user_id: int, page: int, page_size: int, db: Session) -> dict:
+def get_all_strategies_user_service(
+    user_id: int,
+    page: int,
+    page_size: int,
+    db: Session
+) -> Dict[str, Any]:
+    """Get paginated strategies for a specific user."""
+    if page < 1 or page_size < 1:
+        raise ValueError("page and page_size must be greater than 0")
+
+    offset = (page - 1) * page_size
+    filters = (InputPortfolio.user_id == user_id, InputPortfolio.strat_name_alias.isnot(None))
+
+    total_count = db.query(func.count(InputPortfolio.id)).filter(*filters).scalar()
+
+    strategies = (
+        db.query(
+            InputPortfolio.strat_name,
+            InputPortfolio.strat_name_alias,
+            InputPortfolio.strat_uuid,
+        )
+        .filter(*filters)
+        .offset(offset)
+        .limit(page_size)
+        .all()
+    )
+
+    strategies_list = [
+        {
+            "strategy": s.strat_name,
+            "name": s.strat_name_alias,
+            "strategy_id": s.strat_uuid,
+            "formatted_query": format_query_from_strat_name(s.strat_name),
+        }
+        for s in strategies
+    ]
+
+    total_pages = (total_count + page_size - 1) // page_size if total_count else 0
+
+    return {
+        "strategies": strategies_list,
+        "pagination": {
+            "total": total_count,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages,
+        },
+    }
+
+def get_all_strategies_user_service_old(user_id: int, page: int, page_size: int, db: Session) -> dict:
     """
     Get paginated strategies for a specific user.
     
