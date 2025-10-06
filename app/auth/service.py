@@ -55,7 +55,9 @@ def hash_password(password: str) -> str:
     Returns:
         str: The hashed password
     """
-    return pwd_context.hash(password)
+    max_len = 72
+    safe_password = password[:max_len]
+    return pwd_context.hash(safe_password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
