@@ -96,7 +96,7 @@ class PortfolioStats(Base):
     index_median = Column("index_median", Double, nullable=True)
     index_sharpe = Column("index_sharpe", Double, nullable=True)
     index_std = Column("index_std", Double, nullable=True)
-    indx_dwn_std_dev = Column("index_dwn_std_dev", Double, nullable=True)  # Note: database has index_dwn_std_dev
+    indx_dwn_std_dev = Column("indx_dwn_std_dev", Double, nullable=True)  # Note: database has index_dwn_std_dev
     insert_time = Column("insert_time", Text, nullable=True)
     lowest_alpha = Column("lowest_alpha", Double, nullable=True)
     lowest_index = Column("lowest_index", Double, nullable=True)

@@ -169,7 +169,7 @@ def get_strategy(strategy_id: str, db: Session = Depends(get_db), current_user: 
     """
     # Get the strategy first
     strategy = get_strategy_service(strategy_id, db)
-    print(strategy)
+    print("strategy", strategy)
     if not strategy:
         raise HTTPException(status_code=404, detail="Strategy not found")
     
