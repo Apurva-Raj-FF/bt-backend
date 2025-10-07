@@ -260,12 +260,15 @@ def verify_jwt_token(token: str) -> dict:
     Raises:
         Exception: If token is invalid or expired
     """
+    print(token)
     try:
         payload = jwt.decode(
             token,
             os.getenv("SECRET_KEY"),
             algorithms=[os.getenv("ALGORITHM")]
         )
+        
+        print(payload)
         
         if payload.get("exp") and datetime.utcfromtimestamp(payload["exp"]) < datetime.utcnow():
             raise Exception("Token has expired")
