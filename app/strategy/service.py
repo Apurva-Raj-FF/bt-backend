@@ -18,12 +18,16 @@ import sys
 import ast
 from app.database.models import InputPortfolio, PortfolioStats, CalYear
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Request, HTTPException
 from app.database.database import SessionLocal
 from sqlalchemy import or_
 from sqlalchemy import func
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+
+app = FastAPI(title="Strategy Execution API")
+
 
 def _coerce_to_dict(possibly_json: str):
     """Attempt to coerce various string formats into a Python dict.
@@ -153,34 +157,16 @@ def format_query_from_strat_name(strat_name: str) -> str:
 
     except Exception as e:
         return f"Query parsing error: {str(e)}"
-    
-# ---------------------------
-# Define Pydantic Schemas
-# ---------------------------
 
-class Param(BaseModel):
-    name: str
-    id: int
+# Optional: show why validation fails if it ever happens
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=422,
+        content={"error": "Validation failed", "details": exc.errors(), "body": exc.body},
+    )
 
-class DataItem(BaseModel):
-    param: Param
-    period: Optional[int] = None
-    sign: str
-    threshold: float
-
-class Filter(BaseModel):
-    Data: DataItem
-    Operator: str
-
-class DataEntry(BaseModel):
-    filters: List[Filter]
-
-class InputPayload(BaseModel):
-    session_id: str
-    user_token: str
-    data: List[DataEntry]
-
-def run_script(payload: InputPayload) -> dict:
+async def run_script(request: Request) -> dict:
     """
     Execute a Python script with the given parameters and return database results.
     
@@ -199,17 +185,26 @@ def run_script(payload: InputPayload) -> dict:
             }
     """
     try:
-        # Convert Pydantic object to dict (acts as JSON)
-        data_as_json = json.loads(payload.json())["data"]
-        session_id =  payload.session_id,
-        user_token =  payload.user_token
+        # Parse request JSON
+        body = await request.json()
+
+        # Required keys check
+        required_keys = ["session_id", "user_token", "data"]
+        for key in required_keys:
+            if key not in body:
+                raise ValueError(f"Missing required field: '{key}'")
+
+        # Extract fields
+        session_id = body["session_id"]
+        user_token = body["user_token"]
+        data_field = body["data"]
         
         # First execute the script to populate the database
         script_path = os.getenv('SCRIPT_PATH')
         if not os.path.exists(script_path):
             return {"status": "Failure", "error": "Script file not found"}
 
-        cmd = [sys.executable, script_path, session_id, user_token, data_as_json]
+        cmd = [sys.executable, script_path, session_id, user_token, data_field]
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode != 0:
