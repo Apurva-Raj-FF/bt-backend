@@ -152,7 +152,7 @@ def get_all_public_strategies(
     return get_all_strategies_service(page, page_size, db)
 
 @router.get("/strategies")
-def get_strategy(strategy_id: str, db: Session = Depends(get_db), current_user: dict = None) -> dict:
+def get_strategy(strategy_id: str, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)) -> dict:
     """
     Get detailed information about a specific strategy with access control.
     
