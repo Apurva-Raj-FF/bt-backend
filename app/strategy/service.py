@@ -18,15 +18,11 @@ import sys
 import ast
 from app.database.models import InputPortfolio, PortfolioStats, CalYear
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import HTTPException
 from app.database.database import SessionLocal
 from sqlalchemy import or_
 from sqlalchemy import func
 from typing import Dict, Any
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-
-app = FastAPI(title="Strategy Execution API")
 
 
 def _coerce_to_dict(possibly_json: str):
@@ -158,15 +154,7 @@ def format_query_from_strat_name(strat_name: str) -> str:
     except Exception as e:
         return f"Query parsing error: {str(e)}"
 
-# Optional: show why validation fails if it ever happens
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
-    return JSONResponse(
-        status_code=422,
-        content={"error": "Validation failed", "details": exc.errors(), "body": exc.body},
-    )
-
-async def run_script(request: Request) -> dict:
+def run_script(session_id: str, user_token: str, payload: dict) -> dict:
     """
     Execute a Python script with the given parameters and return database results.
     
@@ -185,26 +173,12 @@ async def run_script(request: Request) -> dict:
             }
     """
     try:
-        # Parse request JSON
-        body = await request.json()
-
-        # Required keys check
-        required_keys = ["session_id", "user_token", "data"]
-        for key in required_keys:
-            if key not in body:
-                raise ValueError(f"Missing required field: '{key}'")
-
-        # Extract fields
-        session_id = body["session_id"]
-        user_token = body["user_token"]
-        data_field = body["data"]
-        
         # First execute the script to populate the database
         script_path = os.getenv('SCRIPT_PATH')
         if not os.path.exists(script_path):
             return {"status": "Failure", "error": "Script file not found"}
 
-        cmd = [sys.executable, script_path, session_id, user_token, data_field]
+        cmd = [sys.executable, script_path, session_id, user_token, json.dumps(payload)]
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode != 0:

@@ -25,6 +25,7 @@ from app.database.database import SessionLocal
 from fastapi import Depends, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.auth.service import verify_jwt_token
+from fastapi.concurrency import run_in_threadpool
 
 # Initialize router
 router = APIRouter()
@@ -65,7 +66,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
 
 # Add the dependency to all routes that need authentication
 @router.post("/execute")
-def execute_py(request: QueryExecutionRequest, current_user: dict = Depends(get_current_user)) -> dict:
+async def execute_py(request: QueryExecutionRequest, current_user: dict = Depends(get_current_user)) -> dict:
     """
     Execute a strategy script.
     
@@ -88,7 +89,10 @@ def execute_py(request: QueryExecutionRequest, current_user: dict = Depends(get_
         HTTPException: If execution fails
     """
     try:
-        response = run_script(request.session_id, request.user_token, request.data)
+        # response = run_script(request.session_id, request.user_token, request.data)
+        # return response
+        data_json = [entry.dict() for entry in request.data]
+        response = await run_in_threadpool(run_script, request.session_id, request.user_token, data_json)
         return response
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
