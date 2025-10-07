@@ -18,12 +18,12 @@ import sys
 import ast
 from app.database.models import InputPortfolio, PortfolioStats, CalYear
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
+from fastapi import FastAPI, HTTPException
 from app.database.database import SessionLocal
 from sqlalchemy import or_
 from sqlalchemy import func
-from typing import Dict, Any
-
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
 
 def _coerce_to_dict(possibly_json: str):
     """Attempt to coerce various string formats into a Python dict.
@@ -153,8 +153,34 @@ def format_query_from_strat_name(strat_name: str) -> str:
 
     except Exception as e:
         return f"Query parsing error: {str(e)}"
+    
+# ---------------------------
+# Define Pydantic Schemas
+# ---------------------------
 
-def run_script(session_id: str, user_token: str, payload: dict) -> dict:
+class Param(BaseModel):
+    name: str
+    id: int
+
+class DataItem(BaseModel):
+    param: Param
+    period: Optional[int] = None
+    sign: str
+    threshold: float
+
+class Filter(BaseModel):
+    Data: DataItem
+    Operator: str
+
+class DataEntry(BaseModel):
+    filters: List[Filter]
+
+class InputPayload(BaseModel):
+    session_id: str
+    user_token: str
+    data: List[DataEntry]
+
+def run_script(payload: InputPayload) -> dict:
     """
     Execute a Python script with the given parameters and return database results.
     
@@ -173,12 +199,17 @@ def run_script(session_id: str, user_token: str, payload: dict) -> dict:
             }
     """
     try:
+        # Convert Pydantic object to dict (acts as JSON)
+        data_as_json = json.loads(payload.json())["data"]
+        session_id =  payload.session_id,
+        user_token =  payload.user_token
+        
         # First execute the script to populate the database
         script_path = os.getenv('SCRIPT_PATH')
         if not os.path.exists(script_path):
             return {"status": "Failure", "error": "Script file not found"}
 
-        cmd = [sys.executable, script_path, session_id, user_token, json.dumps(payload)]
+        cmd = [sys.executable, script_path, session_id, user_token, data_as_json]
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode != 0:
