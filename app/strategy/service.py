@@ -180,6 +180,9 @@ def run_script(session_id: str, user_token: str, payload: dict) -> dict:
 
         cmd = [sys.executable, script_path, session_id, user_token, json.dumps(payload)]
         result = subprocess.run(cmd, capture_output=True, text=True)
+        
+        print("Script stdout:\n", result.stdout)
+        print("Script stderr:\n", result.stderr)
 
         if result.returncode != 0:
             raise Exception(f"Script execution failed: {result.stderr}")
