@@ -155,6 +155,23 @@ def get_all_public_strategies(
     """
     return get_all_strategies_service(page, page_size, db)
 
+@router.get("/shared_strategy")
+def get_shared_strategy(
+    strategy_id: str, db: Session = Depends(get_db)
+) -> dict:
+    """
+    Get all public strategies with pagination.
+    
+    Args:
+        page (int): Page number (default: 1)
+        page_size (int): Number of items per page (default: 10)
+        db (Session): Database session
+        
+    Returns:
+        dict: Paginated list of strategies
+    """
+    return get_strategy_service(strategy_id, db)
+
 @router.get("/strategies")
 def get_strategy(strategy_id: str, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)) -> dict:
     """
